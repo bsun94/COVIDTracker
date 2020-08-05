@@ -6,7 +6,7 @@ ______________________
 - Regular packages: pandas, os, json, numpy, datetime, sys
 - Special packages: requests, folium, selenium (this last may need a separate geckodriver download)
 
-** Please also ensure you have Mozilla Firefox installed.**
+**Please also ensure you have Mozilla Firefox installed.**
 
 The COVIDTracker file reads virus cases and deaths data from *Our World in Data (OWID)* (provided at https://covid.ourworldindata.org/data/owid-covid-data.csv). It also reads geoJSON data, in order to draw country polygons on maps, from https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson, and centroid coordinates of countries (used in map pop-up plotting) from Google developers here: http://developers.google.com/public-data/docs/canonical/countries_csv/
 
