@@ -54,8 +54,16 @@ class COVID(object):
     def webScraper(self):
         try:
             self.covid_df = pd.read_csv(self.COVID_URL)
+            latest_date   = self.covid_df['date'].max()
+            earliest_date = self.covid_df['date'].min()
             self.covid_df = self.covid_df[self.covid_df['date']==self.date.strftime('%Y-%m-%d')]
-            self.covid_df = self.covid_df[self.covid_df['location']!='World']
+            
+            if self.covid_df.empty:
+                exit_string = 'Requested date not available. Latest date available is ' + latest_date + ' while earliest is ' + earliest_date
+                sys.exit(exit_string)
+            
+            else:
+                self.covid_df = self.covid_df[self.covid_df['location']!='World']
         
         except:
             sys.exit('COVID data is unavailable at source.')
@@ -170,7 +178,7 @@ class COVID(object):
             sys.exit('Install Firefox!')
 
 
-maps1 = COVID(year='Frank', month=8, day=31, map_type='Deaths')
+maps1 = COVID()
 maps1.webScraper()
 maps1.updateCountryNames()
 maps1.drawMap()
