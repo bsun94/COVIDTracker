@@ -14,4 +14,4 @@ Please make sure you have the **countryNameMapping** JSON file provided download
 
 The script uses the folium package to produce choropleth maps of total cases and/or total deaths due to COVID in the world, with popup markers indicating the top 10 countries for both categories and their respective case/death tolls, after which Selenium displays these interactive maps using your Firefox browser.
 
-The COVID class object defined herein takes in four parameters: year, month and day as ints - please make sure these correspond to a data during the pandemic, starting in March 2020 and not greater than today's date; and a final map_type str parameter, where the user indicates which type of map they'd like to see (for 'Cases' or 'Deaths').
+The COVID class object defined herein takes in four parameters: year, month and day as ints - please make sure these correspond to a date during the pandemic, starting in March 2020 and not greater than today's date; and a final map_type str parameter, where the user indicates which type of map they'd like to see (for 'Cases' or 'Deaths').
