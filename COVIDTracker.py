@@ -26,6 +26,10 @@ class COVID(object):
     os.chdir(os.getcwd())
     
     def __init__(self, year=None, month=None, day=None, map_type='Cases'):
+        """
+        Notably error-checks the year, month, day and map_type attribute values passed. If date value is invalid, defaults to current date;
+        if map_type is neither 'Cases' or 'Deaths', exits the scripts.
+        """
         self.covid_df            = pd.DataFrame([])
         self.geo_data            = pd.DataFrame([])
         self.name_iso2_mapping   = {}
@@ -46,9 +50,12 @@ class COVID(object):
         else:
             self.map_type = map_type
     
-    # Cases data maintained as a personal project by an individual; GeoJSON data source found in 
-    # folium's documentation
     def webScraper(self):
+        """
+        Cases data maintained as a personal project by an individual; GeoJSON data source found in folium's documentation.
+        Exits if any 1 of the 3 online data inputs is unavailable. Also checks if date inputted falls outside of the date range present in
+        Our World in Data csv file - exits the script in this scenario.
+        """
         try:
             self.covid_df = pd.read_csv(self.COVID_URL)
         except:
@@ -74,9 +81,11 @@ class COVID(object):
         except:
             sys.exit('GeoJSON data unavailable to draw country polygons.')
     
-    # Meant to run independently to create a country name-to-ISO2 code mapping on a one-time basis to save on 
-    # future computation
     def writeCountryCodeFile(self):
+        """
+        Meant to run independently to create a country name-to-ISO2 code mapping on a one-time basis to save on future computation.
+        Exits if online geoJSON data is unavailable.
+        """
         try:
             geojson = requests.get(self.GEOJSON_URL).json()
         except:
@@ -91,8 +100,12 @@ class COVID(object):
         with open('countryNameISO2.json', 'w') as file:
             json.dump(country_mapping, file)
     
-    # Matches country names from COVID data to spelling/references in GeoJSON data
     def updateCountryNames(self):
+        """
+        Matches country names from COVID data to spelling/references in GeoJSON data.
+        Exits if the countryNameMapping file is unavailable in the current directory. If the countryNameISO2 file is unavailable, it creates the file
+        in the current directory.
+        """
         try:
             with open('countryNameMapping.json', 'r') as file:
                 name_mapping = json.loads(file.read())
@@ -111,12 +124,16 @@ class COVID(object):
             print('Re-importing required JSONs...')
             self.updateCountryNames()
     
-    # Makes naming map file easier for code later on
     def generateFileName(self):
+        """
+        Makes naming map file easier for code later on.
+        """
         return 'Covid' + self.map_type + '.html'
     
-    # Plot choropleth map for total COVID cases/deaths, marking top 10 countries
     def drawMap(self):
+        """
+        Plot choropleth map for total COVID cases/deaths, marking top 10 countries.
+        """
         world_map     = folium.Map(location=[25, 10], zoom_start=3)
         totals_column = 'total_' + self.map_type.lower()
         
@@ -162,6 +179,10 @@ class COVID(object):
             world_map.save(map_file_name)
     
     def displayMap(self):
+        """
+        Displays the html file created of the choropleth map in a Firefox browser window.
+        Exits if either the map html file or if Firefox does not exist.
+        """
         filepath = os.getcwd() + '/' + self.generateFileName()
         
         if not os.path.exists(filepath):
