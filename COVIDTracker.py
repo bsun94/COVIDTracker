@@ -69,7 +69,7 @@ class COVID(object):
             exit_string = 'Requested date not available. Latest date available is ' + latest_date + ' while earliest is ' + earliest_date
             sys.exit(exit_string)
         else:
-            self.covid_df = self.covid_df[self.covid_df['location']!='World']
+            self.covid_df = self.covid_df[self.covid_df['location'] != 'World']
         
         try:
             self.countries_centroids = pd.read_html(self.CENTROIDS_URL, header=0, index_col='country')[0]
@@ -130,30 +130,42 @@ class COVID(object):
         """
         return 'Covid' + self.map_type + '.html'
     
+    def unitsDetector(self, num):
+        """
+        Recognizes if a number is in units, thousands, millions, billions. Forces floats into ints using int().
+        Exits if num is not an int or a float. While method uses len of argument instead of the argument itself, the check more so ensures
+        the user is not misusing this method.
+        """
+        try:
+            num = int(num)
+        except:
+            sys.exit('Invalid input! Method only takes ints or floats.')
+        
+        if len(str(num)) % 3 == 0:
+            digits = len(str(num)) - 3
+        else:
+            digits = len(str(num)) - (len(str(num)) % 3)
+        
+        units = {9: 'B', 6: 'M', 3: 'K', 0: ''}[digits]
+        
+        return 10 ** digits, units
+    
     def drawMap(self):
         """
         Plot choropleth map for total COVID cases/deaths, marking top 10 countries.
         """
         world_map     = folium.Map(location=[25, 10], zoom_start=3)
         totals_column = 'total_' + self.map_type.lower()
-        
-        if self.map_type == 'Cases':
-            SCALE        = 10 ** 6
-            UNITS        = 'M'
-            color_scheme = 'YlOrRd'
-        
-        else:
-            SCALE        = 10 ** 3
-            UNITS        = 'K'
-            color_scheme = 'PuRd'
-        
         top10         = self.covid_df.sort_values(totals_column, axis=0, ascending=False)['location'][:10]
-        bins          = list(np.linspace(0, np.ceil(self.covid_df[totals_column].max() / SCALE) * SCALE, 6))
+        scale, units  = self.unitsDetector(self.covid_df[totals_column].max())
+        
+        color_scheme  = {'Cases': 'YlOrRd', 'Deaths': 'PuRd'}[self.map_type]
+        bins          = list(np.linspace(0, np.ceil(self.covid_df[totals_column].max() / scale) * scale, 6))
         legend_name   = 'Total Number of COVID-19 ' + self.map_type
         map_file_name = self.generateFileName()
         
         folium.Choropleth(geo_data=self.geo_data,
-                          data=self.covid_df, 
+                          data=self.covid_df,
                           columns=['location', totals_column],
                           key_on='feature.properties.ADMIN',
                           fill_color=color_scheme,
@@ -164,12 +176,12 @@ class COVID(object):
         
         for i in range(10):
             country = top10.iloc[i]
-            cases   = self.covid_df[self.covid_df['location'] == country][totals_column] / SCALE
+            cases   = self.covid_df[self.covid_df['location'] == country][totals_column] / scale
             
             # Centroid coordinates for each country labelled by its ISO-2 code
             lat   = self.countries_centroids.loc[self.name_iso2_mapping[country]]['latitude']
             long  = self.countries_centroids.loc[self.name_iso2_mapping[country]]['longitude']
-            popup = f"{country}: {cases.values[0]:.2f}{UNITS} total {self.map_type.lower()}"
+            popup = f"{country}: {cases.values[0]:.2f}{units} total {self.map_type.lower()}"
             
             folium.Marker(location=[lat, long],
                           popup=folium.Popup(popup, 
@@ -196,7 +208,7 @@ class COVID(object):
             sys.exit('Install Firefox!')
 
 
-maps1 = COVID()
+maps1 = COVID(year=2020, month=8, day=1)
 maps1.webScraper()
 maps1.updateCountryNames()
 maps1.drawMap()
