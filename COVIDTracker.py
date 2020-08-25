@@ -38,7 +38,7 @@ class COVID(object):
         try:
             self.date = datetime(year=year, month=month, day=day)
         except:
-            print('Invalid date entry (year, month, day take valid int inputs)! Date defaulted to today.')
+            print('Invalid/empty date entry (year, month, day take valid int inputs)! Date defaulted to today.')
             self.date = datetime.today()
         
         if self.date > datetime.today():
@@ -141,12 +141,14 @@ class COVID(object):
         except:
             sys.exit('Invalid input! Method only takes ints or floats.')
         
-        if len(str(num)) % 3 == 0:
-            digits = len(str(num)) - 3
-        else:
-            digits = len(str(num)) - (len(str(num)) % 3)
+        digits = 0
+        while num > 1:
+            num /= 10
+            digits += 1
         
-        units = {9: 'B', 6: 'M', 3: 'K', 0: ''}[digits]
+        digits -= 1
+        ind = digits // 3
+        units = {3: 'B', 2: 'M', 1: 'K', 0: ''}[ind]
         
         return 10 ** digits, units
     
@@ -208,7 +210,18 @@ class COVID(object):
             sys.exit('Install Firefox!')
 
 
-maps1 = COVID(year=2020, month=8, day=1)
+map_type = input("Which data would you like to visualize? Please enter either 'Cases' or 'Deaths' or leave blank - default is cases data.")
+date = input("For which date would you like to visualize data? Please enter a date in the format YYYYMMDD or leave blank - default is the most recent date available.")
+
+if date and map_type:
+    maps1 = COVID(year=int(date[:4]), month=int(date[4:6]), day=int(date[6:]), map_type=map_type)
+elif map_type:
+    maps1 = COVID(map_type=map_type)
+elif date:
+    maps1 = COVID(year=int(date[:4]), month=int(date[4:6]), day=int(date[6:]))
+else:
+    maps1 = COVID()
+
 maps1.webScraper()
 maps1.updateCountryNames()
 maps1.drawMap()
