@@ -150,7 +150,7 @@ class COVID(object):
         ind = digits // 3
         units = {3: 'B', 2: 'M', 1: 'K', 0: ''}[ind]
         
-        return 10 ** digits, units
+        return 10 ** (ind * 3), units
     
     def drawMap(self):
         """
